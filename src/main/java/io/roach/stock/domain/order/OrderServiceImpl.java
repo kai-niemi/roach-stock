@@ -1,5 +1,20 @@
 package io.roach.stock.domain.order;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.Assert;
+
 import io.roach.stock.annotation.TransactionMandatory;
 import io.roach.stock.domain.account.NoSuchSystemAccountException;
 import io.roach.stock.domain.account.NoSuchTradingAccountException;
@@ -12,22 +27,6 @@ import io.roach.stock.domain.product.NoSuchProductException;
 import io.roach.stock.domain.product.Product;
 import io.roach.stock.domain.product.ProductRepository;
 import io.roach.stock.util.Money;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.Assert;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @TransactionMandatory
@@ -73,7 +72,10 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NoSuchSystemAccountException(tradingAccount.getParentAccountId(),
                         tradingAccount.getId()));
 
-        updatePortfolio(request, product, tradingAccount.getPortfolio());
+        Portfolio portfolio = tradingAccount.getPortfolio();
+        if (portfolio != null) {
+            updatePortfolio(request, product, tradingAccount.getPortfolio());
+        }
 
         return createOrder(request, product, tradingAccount, systemAccount);
     }
@@ -106,9 +108,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void updatePortfolio(OrderRequest request, Product product, Portfolio portfolio) {
-        if (portfolio == null) {
-            return;
-        }
         switch (request.getOrderType()) {
             case BUY:
                 Assert.isTrue(request.getQuantity() > 0, "Negative quantity");
@@ -228,22 +227,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public BookingOrder getOrderById(UUID id) {
-        return orderRepository.findById(id).orElseThrow(() -> new NoSuchOrderException(id));
-    }
-
-    @Override
     public List<BookingOrder> findOrdersByAccountId(UUID accountId) {
         return orderRepository.findByAccountId(accountId);
-    }
-
-    @Override
-    public Page<BookingOrder> findOrderPage(Pageable page) {
-        return orderRepository.findAll(page);
-    }
-
-    @Override
-    public List<BookingOrderItem> findOrderItemsByAccountId(UUID orderId, UUID accountId) {
-        return orderItemRepository.findByOrderId(orderId, accountId);
     }
 }

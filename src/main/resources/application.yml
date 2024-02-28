@@ -23,7 +23,7 @@ spring:
         dialect: io.roach.stock.util.CockroachDBDialect
         connection:
           # inverse of hikari->auto-commit
-          provider_disables_autocommit: false
+          provider_disables_autocommit: true
         jdbc:
           lob:
             non_contextual_creation: true
@@ -43,12 +43,13 @@ spring:
     password:
     hikari:
       # inverse of provider_disables_autocommit
-      auto-commit: true
+      auto-commit: false
       pool-name: stock-service
       connection-init-sql: SELECT 1
       initialization-fail-timeout: -1
       maximum-pool-size: 40
       minimum-idle: 20
+      transaction-isolation: TRANSACTION_SERIALIZABLE
 
 #############################
 logging:

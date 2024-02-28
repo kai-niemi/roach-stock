@@ -67,14 +67,4 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         return totalValue;
     }
-
-    @Override
-    public Page<PortfolioItem> findItemsById(UUID accountId, Pageable page) {
-        return portfolioRepository.findById(accountId, page);
-    }
-
-    @Override
-    public List<Portfolio> findAll() {
-        return portfolioRepository.findAll();
-    }
 }

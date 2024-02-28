@@ -110,14 +110,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<TradingAccount> findTradingAccountsByPage(Pageable page, boolean onlyWithHoldings) {
-        if (onlyWithHoldings) {
-            return tradingAccountRepository.findAccountsWithHoldingsByPage(page);
-        }
-        return tradingAccountRepository.findAccountsByPage(page);
-    }
-
-    @Override
     public Page<SystemAccount> findSystemAccountsByPage(Pageable page) {
         return systemAccountRepository.findAll(page);
     }

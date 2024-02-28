@@ -46,11 +46,8 @@ import java.util.stream.IntStream;
 
 import static io.roach.stock.util.Money.euro;
 
-//@ActiveProfiles({ProfileNames.PSQL_LOCAL_RC})
-//@ActiveProfiles({ProfileNames.PSQL_LOCAL})
-//@ActiveProfiles({ProfileNames.CRDB_DEV_RC})
+//@ActiveProfiles({ProfileNames.CRDB_DEV, ProfileNames.RC})
 //@ActiveProfiles({ProfileNames.CRDB_DEV})
-//@ActiveProfiles({ProfileNames.CRDB_LOCAL})
 @Tag("stress")
 public class TradingStressTest extends AbstractIntegrationTest {
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors() * 2;

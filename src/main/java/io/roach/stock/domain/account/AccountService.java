@@ -48,7 +48,5 @@ public interface AccountService {
 
     Page<TradingAccount> findTradingAccountsByPage(UUID parentId, Pageable page);
 
-    Page<TradingAccount> findTradingAccountsByPage(Pageable page, boolean onlyWithHoldings);
-
     Page<SystemAccount> findSystemAccountsByPage(Pageable page);
 }

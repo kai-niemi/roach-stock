@@ -9,5 +9,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/stock
     username: root
     password:
-    hikari:
-      transaction-isolation: TRANSACTION_SERIALIZABLE

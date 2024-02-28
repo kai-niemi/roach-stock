@@ -1,12 +1,10 @@
 package io.roach.stock.domain.order;
 
-import io.roach.stock.domain.account.NoSuchSystemAccountException;
-import io.roach.stock.domain.product.NoSuchProductException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 import java.util.UUID;
+
+import io.roach.stock.domain.account.NoSuchSystemAccountException;
+import io.roach.stock.domain.product.NoSuchProductException;
 
 /**
  * Defines the business contract for placing and retrieving product orders.
@@ -44,8 +42,6 @@ public interface OrderService {
      */
     BookingOrder getOrderByRef(String orderRef);
 
-    BookingOrder getOrderById(UUID id);
-
     /**
      * Find all placed orders for a given account reference.
      *
@@ -58,8 +54,4 @@ public interface OrderService {
      *                                      reference does not exist
      */
     List<BookingOrder> findOrdersByAccountId(UUID accountId);
-
-    List<BookingOrderItem> findOrderItemsByAccountId(UUID orderId, UUID accountId);
-
-    Page<BookingOrder> findOrderPage(Pageable page);
 }
