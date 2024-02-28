@@ -1,0 +1,59 @@
+##################################
+# Spring boot properties
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+##################################
+spring:
+  application:
+    name: stock-service
+  output:
+    ansi:
+      enabled: ALWAYS
+  flyway:
+    enabled: true
+    clean-on-validation-error: true
+    baseline-on-migrate: true
+    clean-disabled: false
+    connect-retries: 10
+    locations: classpath:db/migration/crdb,classpath:db/migration/common
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: io.roach.stock.util.CockroachDBDialect
+        connection:
+          # inverse of hikari->auto-commit
+          provider_disables_autocommit: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          batch_size: 256
+          fetch_size: 256
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+        hql:
+          bulk_id_strategy: org.hibernate.hql.spi.id.inline.CteValuesListBulkIdStrategy
+        cache:
+          use_minimal_puts: true
+          use_second_level_cache: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password:
+    hikari:
+      # inverse of provider_disables_autocommit
+      auto-commit: true
+      pool-name: stock-service
+      connection-init-sql: SELECT 1
+      initialization-fail-timeout: -1
+      maximum-pool-size: 40
+      minimum-idle: 20
+
+#############################
+logging:
+  pattern:
+    console: "%clr(%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:%5p}) %clr([%logger{39}]){cyan} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+    file: "%d{${LOG_DATEFORMAT_PATTERN:yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:%5p} [%t] %logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
+  file:
+    name: stock-service.log

@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    locations: classpath:db/migration/psql,classpath:db/migration/common
+  datasource:
+    url: jdbc:postgresql://192.168.1.99:5432/stock
+    username: root
+    password:
+    hikari:
+      transaction-isolation: TRANSACTION_SERIALIZABLE

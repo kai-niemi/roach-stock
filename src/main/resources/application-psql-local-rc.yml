@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    locations: classpath:db/migration/psql,classpath:db/migration/common
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stock
+    username: root
+    password:
+    hikari:
+      transaction-isolation: TRANSACTION_READ_COMMITTED

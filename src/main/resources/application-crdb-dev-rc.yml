@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: io.roach.stock.util.CockroachDBDialect
+  datasource:
+    url: jdbc:postgresql://192.168.1.99:26257/stock?sslmode=disable
+    username: root
+    password:
+    hikari:
+      transaction-isolation: TRANSACTION_READ_COMMITTED
