@@ -1,7 +1,7 @@
 package io.roach.stock.domain.account;
 
 import io.roach.stock.AbstractIntegrationTest;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.doubles.TestDoubles;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;

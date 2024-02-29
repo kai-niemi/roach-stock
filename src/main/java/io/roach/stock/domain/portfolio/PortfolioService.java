@@ -3,7 +3,7 @@ package io.roach.stock.domain.portfolio;
 import java.util.UUID;
 
 import io.roach.stock.domain.account.NoSuchSystemAccountException;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 
 /**
  * Defines the business contract for managing account portfolios.

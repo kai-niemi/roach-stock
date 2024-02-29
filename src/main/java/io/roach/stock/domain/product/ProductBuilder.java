@@ -2,7 +2,7 @@ package io.roach.stock.domain.product;
 
 import java.util.UUID;
 
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 
 public class ProductBuilder {
     private UUID id;

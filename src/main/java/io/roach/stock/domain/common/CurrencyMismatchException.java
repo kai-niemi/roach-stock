@@ -1,4 +1,4 @@
-package io.roach.stock.util;
+package io.roach.stock.domain.common;
 
 /**
  * Exception thrown on money calculation with conflicting currencies.

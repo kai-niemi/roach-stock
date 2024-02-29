@@ -1,7 +1,14 @@
 package io.roach.stock.aspect;
 
-import io.roach.stock.annotation.AdvisorOrder;
-import io.roach.stock.annotation.Retryable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,13 +21,8 @@ import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import io.roach.stock.annotation.AdvisorOrder;
+import io.roach.stock.annotation.Retryable;
 
 /**
  * AOP aspect that applies retries of failed transactions in the main business services.
@@ -38,6 +40,13 @@ public class TransactionRetryAspect {
     }
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private Consumer<Integer> retryConsumer = integer -> {
+    };
+
+    public void setRetryConsumer(Consumer<Integer> retryConsumer) {
+        this.retryConsumer = retryConsumer;
+    }
 
     @Around(value = "Pointcuts.retryableBoundaryOperation(retryable)",
             argNames = "pjp,retryable")
@@ -61,6 +70,7 @@ public class TransactionRetryAspect {
                 numCalls++;
                 Object rv = pjp.proceed();
                 if (numCalls > 1) {
+                    retryConsumer.accept(numCalls - 1);
                     logger.info(
                             "Transient error recovered after %d of %d retries (%s)"
                                     .formatted(numCalls - 1,
@@ -87,7 +97,7 @@ public class TransactionRetryAspect {
 
             logger.error("Non-recoverable exception in retry loop", throwable);
 
-            throw throwable.fillInStackTrace();
+            throw throwable;
 
         } while (numCalls < retryable.retryAttempts());
 

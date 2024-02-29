@@ -4,23 +4,23 @@ package io.roach.stock.unittest;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import io.roach.stock.domain.order.OrderRequest;
-import io.roach.stock.domain.order.OrderType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
-import io.roach.stock.util.Money;
 import io.roach.stock.domain.account.AccountService;
 import io.roach.stock.domain.account.SystemAccount;
 import io.roach.stock.domain.account.TradingAccount;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.domain.order.BookingOrder;
+import io.roach.stock.domain.order.OrderRequest;
 import io.roach.stock.domain.order.OrderService;
+import io.roach.stock.domain.order.OrderType;
 import io.roach.stock.domain.portfolio.PortfolioService;
 import io.roach.stock.doubles.TestDoubles;
 
-import static io.roach.stock.util.Money.euro;
+import static io.roach.stock.domain.common.Money.euro;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -46,6 +46,12 @@ public class TradingUnitTest {
 
     private PortfolioService portfolioServiceMock;
 
+    UUID a = UUID.randomUUID();
+
+    UUID b = UUID.randomUUID();
+
+    UUID c = UUID.randomUUID();
+
     @BeforeAll
     public void setupMocks() {
         accountServiceMock = Mockito.mock(AccountService.class);
@@ -60,7 +66,8 @@ public class TradingUnitTest {
                         .placeOrder(Mockito.any(OrderRequest.class)))
                 .thenReturn(null);
 
-        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq("buy-1"))).thenReturn(
+
+        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq(a))).thenReturn(
                 new BookingOrder(UUID.randomUUID(),
                         ACCOUNT_A,
                         OrderType.BUY,
@@ -68,14 +75,14 @@ public class TradingUnitTest {
                         TestDoubles.APPLE_A.getBuyPrice().multiply(5),
                         LocalDateTime.now())
         );
-        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq("buy-2"))).thenReturn(
+        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq(b))).thenReturn(
                 new BookingOrder(UUID.randomUUID(),
                         ACCOUNT_A, OrderType.BUY,
                         TestDoubles.NOKIA_A, 2,
                         TestDoubles.NOKIA_A.getBuyPrice().multiply(2),
                         LocalDateTime.now())
         );
-        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq("sell-1"))).thenReturn(
+        Mockito.when(orderServiceMock.getOrderByRef(Mockito.eq(c))).thenReturn(
                 new BookingOrder(UUID.randomUUID(),
                         ACCOUNT_A, OrderType.SELL,
                         TestDoubles.APPLE_A, 2,
@@ -100,7 +107,7 @@ public class TradingUnitTest {
                 .buy(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                 .quantity(5)
-                .ref("buy-1")
+                .ref(a)
                 .build()
         );
 
@@ -109,7 +116,7 @@ public class TradingUnitTest {
                 .buy(TestDoubles.NOKIA_A.getReference())
                 .unitPrice(TestDoubles.NOKIA_A.getBuyPrice())
                 .quantity(2)
-                .ref("buy-2")
+                .ref(b)
                 .build()
         );
 
@@ -118,7 +125,7 @@ public class TradingUnitTest {
                 .sell(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getSellPrice())
                 .quantity(2)
-                .ref("sell-1")
+                .ref(c)
                 .build()
         );
 

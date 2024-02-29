@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,11 +21,11 @@ import io.roach.stock.domain.account.SystemAccount;
 import io.roach.stock.domain.account.SystemAccountRepository;
 import io.roach.stock.domain.account.TradingAccount;
 import io.roach.stock.domain.account.TradingAccountRepository;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.domain.portfolio.Portfolio;
 import io.roach.stock.domain.product.NoSuchProductException;
 import io.roach.stock.domain.product.Product;
 import io.roach.stock.domain.product.ProductRepository;
-import io.roach.stock.util.Money;
 
 @Service
 @TransactionMandatory
@@ -43,21 +42,19 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private OrderItemRepository orderItemRepository;
-
-    @Autowired
     private ProductRepository productRepository;
 
     @Override
     public BookingOrder placeOrder(OrderRequest request) {
         Assert.isTrue(TransactionSynchronizationManager.isActualTransactionActive(), "bad tx state");
         Assert.notNull(request, "request is null");
-        Assert.notNull(request.getOrderRef(), "order ref is null");
 
         // Idempotency check
-        Optional<BookingOrder> order = orderRepository.findByReference(request.getOrderRef());
-        if (order.isPresent()) {
-            return order.get();
+        boolean exists = request.getIdempotencyKey() != null
+                && orderRepository.existsById(request.getIdempotencyKey());
+        if (exists) {
+            return orderRepository.findById(request.getIdempotencyKey())
+                    .orElseThrow(() -> new IllegalStateException("Not supposed to happen"));
         }
 
         Product product = productRepository.getByReference(request.getProductRef())
@@ -65,10 +62,10 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrder(request, product);
 
-        TradingAccount tradingAccount = tradingAccountRepository.getByIdForUpdate(request.getBookingAccountId())
+        TradingAccount tradingAccount = tradingAccountRepository.findByIdForUpdate(request.getBookingAccountId())
                 .orElseThrow(() -> new NoSuchTradingAccountException(request.getBookingAccountId()));
 
-        SystemAccount systemAccount = systemAccountRepository.getByIdForUpdate(tradingAccount.getParentAccountId())
+        SystemAccount systemAccount = systemAccountRepository.findByIdForUpdate(tradingAccount.getParentAccountId())
                 .orElseThrow(() -> new NoSuchSystemAccountException(tradingAccount.getParentAccountId(),
                         tradingAccount.getId()));
 
@@ -154,7 +151,6 @@ public class OrderServiceImpl implements OrderService {
                 .setAccount(tradingAccount)
                 .setProduct(product)
                 .setTotalPrice(totalPrice)
-                .setReference(request.getOrderRef())
                 .setOrderType(request.getOrderType())
                 .setQuantity(request.getQuantity())
                 .setApprovalDate(LocalDateTime.now())
@@ -221,8 +217,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public BookingOrder getOrderByRef(String orderRef) {
-        return orderRepository.findByReference(
+    public BookingOrder getOrderByRef(UUID orderRef) {
+        return orderRepository.findById(
                 orderRef).orElseThrow(() -> new NoSuchOrderException(orderRef));
     }
 

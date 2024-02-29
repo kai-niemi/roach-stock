@@ -47,7 +47,6 @@ public class TradingFunctionalTest extends AbstractIntegrationTest {
                 .buy(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                 .quantity(5)
-                .ref("buy-1")
                 .build()
         );
         assertEquals(TestDoubles.APPLE_A.getBuyPrice().multiply(5), o1.getTotalPrice());
@@ -57,7 +56,6 @@ public class TradingFunctionalTest extends AbstractIntegrationTest {
                 .buy(TestDoubles.NOKIA_A.getReference())
                 .unitPrice(TestDoubles.NOKIA_A.getBuyPrice())
                 .quantity(2)
-                .ref("buy-2")
                 .build()
         );
         assertEquals(TestDoubles.NOKIA_A.getBuyPrice().multiply(2), o2.getTotalPrice());
@@ -67,7 +65,6 @@ public class TradingFunctionalTest extends AbstractIntegrationTest {
                 .sell(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getSellPrice())
                 .quantity(2)
-                .ref("sell-1")
                 .build()
         );
         assertEquals(TestDoubles.APPLE_A.getSellPrice().multiply(2), o3.getTotalPrice());

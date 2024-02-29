@@ -1,5 +1,7 @@
 package io.roach.stock.domain.account;
 
+import java.math.BigDecimal;
+import java.util.Currency;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +14,7 @@ import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 
@@ -24,7 +26,7 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
     @QueryHints(value = {
             @QueryHint(name = "javax.persistence.lock.timeout", value = "5000"),
             @QueryHint(name = "javax.persistence.lock.scope", value = "EXTENDED")})
-    Optional<TradingAccount> getByIdForUpdate(UUID id);
+    Optional<TradingAccount> findByIdForUpdate(UUID id);
 
     @Query(value = "from TradingAccount ta "
             + "left join fetch ta.portfolio po "
@@ -45,5 +47,11 @@ public interface TradingAccountRepository extends JpaRepository<TradingAccount, 
     @Query("select a.balance from TradingAccount a "
             + "where a.id = :id")
     Optional<Money> getBalanceById(@Param("id") UUID id);
+
+    @Query(value = "select "
+            + "sum (a.balance.amount) "
+            + "from TradingAccount a "
+            + "where a.balance.currency=:currency")
+    BigDecimal getTotalBalance(@Param("currency") Currency currency);
 }
 

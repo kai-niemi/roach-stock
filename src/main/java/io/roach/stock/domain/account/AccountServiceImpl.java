@@ -1,5 +1,6 @@
 package io.roach.stock.domain.account;
 
+import java.util.Currency;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.Assert;
 
 import io.roach.stock.annotation.TransactionMandatory;
-import io.roach.stock.util.Money;
 import io.roach.stock.domain.portfolio.Portfolio;
 import io.roach.stock.domain.portfolio.PortfolioRepository;
+import io.roach.stock.domain.common.Money;
 
 @Service
 @TransactionMandatory
@@ -72,12 +73,21 @@ public class AccountServiceImpl implements AccountService {
         return tradingAccount;
     }
 
-
     @Override
     public Money getBalance(UUID id) {
         Assert.notNull(id, "Account id is null");
         return accountRepository.getBalanceById(id).orElseThrow(() -> new NoSuchAccountException(
                 "with id: " + id));
+    }
+
+    @Override
+    public Money getSystemAccountTotalBalance(Currency currency) {
+        return Money.of(systemAccountRepository.getTotalBalance(currency), currency);
+    }
+
+    @Override
+    public Money getTradingAccountTotalBalance(Currency currency) {
+        return Money.of(tradingAccountRepository.getTotalBalance(currency), currency);
     }
 
     @Override
@@ -100,17 +110,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Page<TradingAccount> findTradingAccountsByPage(UUID parentId, Pageable page) {
-        return tradingAccountRepository.findAccountsByPage(parentId, page);
-    }
-
-    @Override
     public Page<TradingAccount> findTradingAccountsByRandom(Pageable page) {
         return tradingAccountRepository.findAccountsByRandom(page);
-    }
-
-    @Override
-    public Page<SystemAccount> findSystemAccountsByPage(Pageable page) {
-        return systemAccountRepository.findAll(page);
     }
 }

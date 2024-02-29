@@ -5,12 +5,10 @@ import java.util.UUID;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import io.roach.stock.annotation.TransactionMandatory;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.domain.account.NoSuchTradingAccountException;
 import io.roach.stock.domain.account.TradingAccountRepository;
 import io.roach.stock.domain.product.NoSuchProductException;

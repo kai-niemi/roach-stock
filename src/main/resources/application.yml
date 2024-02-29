@@ -3,6 +3,8 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 ##################################
 spring:
+  profiles:
+    active: crdb-local,rc
   application:
     name: stock-service
   output:

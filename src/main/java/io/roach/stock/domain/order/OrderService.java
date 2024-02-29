@@ -40,7 +40,7 @@ public interface OrderService {
      * @throws NoSuchOrderException     if the referenced order
      *                                  does not exist
      */
-    BookingOrder getOrderByRef(String orderRef);
+    BookingOrder getOrderByRef(UUID orderRef);
 
     /**
      * Find all placed orders for a given account reference.

@@ -1,16 +1,19 @@
-package io.roach.stock.util;
+package io.roach.stock.domain.common;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Immutable monetary type that couples an amount with a currency.
  * The amount value is represented by {@code java.math.BigDecimal} and the currency
  * by a ISO-4701 {@code java.util.Currency}.
  */
-public final class Money implements Serializable, Comparable<Money> {
+@Embeddable
+public class Money implements Serializable, Comparable<Money> {
     public static final Currency SEK = Currency.getInstance("SEK");
 
     public static final Currency EUR = Currency.getInstance("EUR");

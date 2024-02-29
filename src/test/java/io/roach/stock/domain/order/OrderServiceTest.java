@@ -13,7 +13,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import io.roach.stock.AbstractIntegrationTest;
 import io.roach.stock.doubles.TestDoubles;
 
-import static io.roach.stock.util.Money.euro;
+import static io.roach.stock.domain.common.Money.euro;
 
 @Tag("it")
 public class OrderServiceTest extends AbstractIntegrationTest {
@@ -38,7 +38,6 @@ public class OrderServiceTest extends AbstractIntegrationTest {
                 .buy(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                 .quantity(5)
-                .ref("buy-1")
                 .build()
         );
 

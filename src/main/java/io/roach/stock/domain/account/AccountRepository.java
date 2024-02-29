@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, UUID> {

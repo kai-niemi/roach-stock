@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.roach.stock.domain.account.AccountService;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.annotation.NotTransactional;
 import io.roach.stock.doubles.TestDoubles;
 import io.roach.stock.AbstractIntegrationTest;

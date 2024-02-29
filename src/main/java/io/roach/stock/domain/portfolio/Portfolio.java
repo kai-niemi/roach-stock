@@ -1,7 +1,7 @@
 package io.roach.stock.domain.portfolio;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.domain.account.Account;
 import io.roach.stock.domain.account.TradingAccount;
 import io.roach.stock.domain.common.AbstractEntity;

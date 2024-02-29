@@ -3,9 +3,9 @@ package io.roach.stock.doubles;
 import java.util.UUID;
 
 import io.roach.stock.domain.product.Product;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 
-import static io.roach.stock.util.Money.euro;
+import static io.roach.stock.domain.common.Money.euro;
 
 /**
  * Account and product test doubles.

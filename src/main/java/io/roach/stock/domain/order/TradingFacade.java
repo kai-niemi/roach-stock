@@ -33,6 +33,7 @@ public class TradingFacade {
 
     @TransactionBoundary
     @Retryable
+    @Deprecated
     public List<BookingOrder> placeSellOrdersForAllHoldings(UUID tradingAccountId) {
         TradingAccount tradingAccount =
                 accountService.getTradingAccountById(tradingAccountId, true);
@@ -54,7 +55,7 @@ public class TradingFacade {
                         .sell(product.getReference())
                         .unitPrice(product.getSellPrice())
                         .quantity(qty.get())
-                        .ref(UUID.randomUUID().toString())
+//                        .ref(UUID.randomUUID())
                         .build();
                 orderList.add(orderService.placeOrder(orderRequest));
             }
@@ -67,21 +68,13 @@ public class TradingFacade {
     @Retryable
     public List<BookingOrder> placeSellOrdersForHoldings(UUID tradingAccountId,
                                                          Pair<Product, Integer> pair) {
-        TradingAccount tradingAccount =
-                accountService.getTradingAccountById(tradingAccountId, true);
-
-        List<BookingOrder> orderList = new ArrayList<>();
-
         OrderRequest orderRequest = OrderRequest.builder()
-                .bookingAccount(tradingAccount.getId())
+                .bookingAccount(tradingAccountId)
                 .sell(pair.getFirst().getReference())
                 .unitPrice(pair.getFirst().getSellPrice())
                 .quantity(pair.getSecond())
-                .ref(UUID.randomUUID().toString())
+                .ref(UUID.randomUUID())
                 .build();
-
-        orderList.add(orderService.placeOrder(orderRequest));
-
-        return orderList;
+        return List.of(orderService.placeOrder(orderRequest));
     }
 }

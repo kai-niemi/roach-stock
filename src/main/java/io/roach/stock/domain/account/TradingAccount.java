@@ -1,7 +1,7 @@
 package io.roach.stock.domain.account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 import io.roach.stock.domain.portfolio.Portfolio;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

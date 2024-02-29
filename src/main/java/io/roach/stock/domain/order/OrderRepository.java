@@ -2,7 +2,6 @@ package io.roach.stock.domain.order;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +22,4 @@ public interface OrderRepository extends JpaRepository<BookingOrder, UUID> {
             + "where oi.account.id = :id "
             + "order by o.placedDate")
     List<BookingOrder> findByAccountId(@Param("id") UUID accountId);
-
-    Optional<BookingOrder> findByReference(String reference);
 }

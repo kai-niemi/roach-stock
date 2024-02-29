@@ -1,11 +1,14 @@
-package io.roach.stock.util;
+package io.roach.stock.common;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static io.roach.stock.util.Money.SEK;
-import static io.roach.stock.util.Money.kronor;
-import static io.roach.stock.util.Money.of;
+import io.roach.stock.domain.common.CurrencyMismatchException;
+import io.roach.stock.domain.common.Money;
+
+import static io.roach.stock.domain.common.Money.SEK;
+import static io.roach.stock.domain.common.Money.kronor;
+import static io.roach.stock.domain.common.Money.of;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MoneyTest {

@@ -1,14 +1,20 @@
 package io.roach.stock.domain.order;
 
+import java.io.Serializable;
+import java.util.UUID;
+
+import org.hibernate.annotations.CompositeType;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.roach.stock.util.Money;
+
 import io.roach.stock.domain.account.Account;
 import io.roach.stock.domain.common.AbstractEntity;
+import io.roach.stock.domain.common.Money;
+import io.roach.stock.domain.common.MoneyType;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,31 +24,28 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
-import java.io.Serializable;
-import java.util.UUID;
-
 @Entity
 @Table(name = "booking_order_item")
 public class BookingOrderItem extends AbstractEntity<BookingOrderItem.Id> {
     @EmbeddedId
     private BookingOrderItem.Id id = new BookingOrderItem.Id();
 
-    @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "amount",
                     column = @Column(name = "transfer_amount", nullable = false)),
             @AttributeOverride(name = "currency",
                     column = @Column(name = "transfer_currency", length = 3, nullable = false))
     })
+    @CompositeType(MoneyType.class)
     private Money amount;
 
-    @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "amount",
                     column = @Column(name = "running_balance", nullable = false)),
             @AttributeOverride(name = "currency",
                     column = @Column(name = "running_currency", length = 3, nullable = false))
     })
+    @CompositeType(MoneyType.class)
     private Money runningBalance;
 
     @MapsId("id")

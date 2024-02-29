@@ -1,6 +1,6 @@
 package io.roach.stock.domain.order;
 
-import io.roach.stock.util.Money;
+import io.roach.stock.domain.common.Money;
 
 import java.util.UUID;
 
@@ -8,9 +8,9 @@ import java.util.UUID;
  * Request object describing the details of a product buy or sell order.
  */
 public final class OrderRequest {
-    private UUID bookingAccountId;
+    private UUID idempotencyKey;
 
-    private String orderRef;
+    private UUID bookingAccountId;
 
     private OrderType orderType;
 
@@ -23,8 +23,8 @@ public final class OrderRequest {
     private OrderRequest() {
     }
 
-    public String getOrderRef() {
-        return orderRef;
+    public UUID getIdempotencyKey() {
+        return idempotencyKey;
     }
 
     public UUID getBookingAccountId() {
@@ -92,7 +92,7 @@ public final class OrderRequest {
     }
 
     public interface OrderBuilder {
-        OrderBuilder ref(String orderRef);
+        OrderBuilder ref(UUID idempotencyKey);
 
         OrderRequest build();
     }
@@ -104,8 +104,8 @@ public final class OrderRequest {
         private final OrderRequest request = new OrderRequest();
 
         @Override
-        public OrderBuilder ref(String orderRef) {
-            request.orderRef = orderRef;
+        public OrderBuilder ref(UUID idempotencyKey) {
+            request.idempotencyKey = idempotencyKey;
             return this;
         }
 

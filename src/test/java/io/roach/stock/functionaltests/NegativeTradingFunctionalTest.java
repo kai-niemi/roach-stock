@@ -23,7 +23,7 @@ import io.roach.stock.domain.order.OrderService;
 import io.roach.stock.doubles.DoublesService;
 import io.roach.stock.doubles.TestDoubles;
 
-import static io.roach.stock.util.Money.euro;
+import static io.roach.stock.domain.common.Money.euro;
 
 @Tag("it")
 public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
@@ -67,7 +67,6 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                     .buy(TestDoubles.APPLE_A.getReference())
                     .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                     .quantity(10)
-                    .ref("buy-1")
                     .build());
         });
     }
@@ -82,7 +81,6 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                 .buy(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                 .quantity(2)
-                .ref("buy-2")
                 .build()
         );
 
@@ -92,7 +90,6 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                     .sell(TestDoubles.APPLE_A.getReference())
                     .unitPrice(TestDoubles.APPLE_A.getSellPrice().multiply(1.06))
                     .quantity(2)
-                    .ref("sell-1")
                     .build()
             );
         });
@@ -109,7 +106,6 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                     .buy(TestDoubles.APPLE_A.getReference())
                     .unitPrice(TestDoubles.APPLE_A.getBuyPrice().multiply(0.94))
                     .quantity(2)
-                    .ref("buy-3")
                     .build()
             );
         });
@@ -126,7 +122,6 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                     .sell(TestDoubles.APPLE_A.getReference())
                     .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                     .quantity(1)
-                    .ref("buy-4")
                     .build()
             );
         });
@@ -142,15 +137,15 @@ public class NegativeTradingFunctionalTest extends AbstractIntegrationTest {
                 .buy(TestDoubles.APPLE_A.getReference())
                 .unitPrice(TestDoubles.APPLE_A.getBuyPrice())
                 .quantity(2)
-                .ref("buy-5")
                 .build()
         );
+
         BookingOrder second = orderService.placeOrder(OrderRequest.builder()
                 .bookingAccount(ACCOUNT_A)
                 .buy(TestDoubles.APPLE_B.getReference())
                 .unitPrice(TestDoubles.APPLE_B.getBuyPrice())
                 .quantity(3)
-                .ref("buy-5")
+                .ref(first.getId())
                 .build()
         );
         Assertions.assertEquals(first.getProduct().getId(), second.getProduct().getId());

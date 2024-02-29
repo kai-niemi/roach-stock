@@ -1,34 +1,5 @@
 package io.roach.stock.loadtests;
 
-import io.roach.stock.AbstractIntegrationTest;
-import io.roach.stock.ProfileNames;
-import io.roach.stock.domain.account.AccountService;
-import io.roach.stock.domain.account.SystemAccount;
-import io.roach.stock.domain.account.TradingAccount;
-import io.roach.stock.domain.order.BookingOrder;
-import io.roach.stock.domain.order.OrderRequest;
-import io.roach.stock.domain.order.TradingFacade;
-import io.roach.stock.domain.product.Product;
-import io.roach.stock.domain.product.ProductService;
-import io.roach.stock.doubles.DoublesService;
-import io.roach.stock.doubles.TestDoubles;
-import io.roach.stock.util.Money;
-import io.roach.stock.util.RandomUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
-import org.springframework.test.annotation.Commit;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.transaction.support.TransactionTemplate;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,15 +15,45 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import static io.roach.stock.util.Money.euro;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.util.Pair;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
-//@ActiveProfiles({ProfileNames.CRDB_DEV, ProfileNames.RC})
-//@ActiveProfiles({ProfileNames.CRDB_DEV})
+import io.roach.stock.AbstractIntegrationTest;
+import io.roach.stock.ProfileNames;
+import io.roach.stock.aspect.TransactionRetryAspect;
+import io.roach.stock.domain.account.AccountService;
+import io.roach.stock.domain.account.TradingAccount;
+import io.roach.stock.domain.common.Money;
+import io.roach.stock.domain.order.BookingOrder;
+import io.roach.stock.domain.order.OrderRequest;
+import io.roach.stock.domain.order.TradingFacade;
+import io.roach.stock.domain.product.Product;
+import io.roach.stock.domain.product.ProductService;
+import io.roach.stock.doubles.DoublesService;
+import io.roach.stock.doubles.TestDoubles;
+import io.roach.stock.util.RandomUtils;
+
+import static io.roach.stock.domain.common.Money.euro;
+
+//@ActiveProfiles(value = {ProfileNames.CRDB_DEV})
+//@ActiveProfiles(value = {ProfileNames.PSQL_LOCAL,ProfileNames.RC})
+//@ActiveProfiles(value = {ProfileNames.PSQL_DEV})
 @Tag("stress")
 public class TradingStressTest extends AbstractIntegrationTest {
-    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors() * 4;
 
-    private static final int BUY_ORDERS = 100;
+    private static final int BUY_ORDERS = 500;
 
     private static final int NUM_PRODUCTS = 100;
 
@@ -75,6 +76,9 @@ public class TradingStressTest extends AbstractIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private TransactionRetryAspect retryAspect;
+
     private Money initialSystemAccountsTotal = Money.zero(Money.EUR);
 
     private Money initialTradingAccountsTotal = Money.zero(Money.EUR);
@@ -82,6 +86,8 @@ public class TradingStressTest extends AbstractIntegrationTest {
     private Money finalBuyTotal = Money.zero(Money.EUR);
 
     private Money finalSellTotal = Money.zero(Money.EUR);
+
+    private AtomicInteger totalRetries = new AtomicInteger();
 
     @BeforeAll
     public void setupTest() {
@@ -115,6 +121,9 @@ public class TradingStressTest extends AbstractIntegrationTest {
                         .build());
             });
         });
+
+        // Install a retry counter
+        retryAspect.setRetryConsumer(n -> totalRetries.addAndGet(n));
     }
 
     @Test
@@ -124,18 +133,8 @@ public class TradingStressTest extends AbstractIntegrationTest {
     public void whenPreparing_thenSumInitialTotalBalance() {
         Assertions.assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
 
-        accountService.findSystemAccountsByPage(Pageable.unpaged())
-                .getContent().forEach(systemAccount -> {
-                    Assertions.assertEquals(TestDoubles.TRADER_INITIAL_BALANCE, systemAccount.getBalance());
-                    initialSystemAccountsTotal = initialSystemAccountsTotal.plus(systemAccount.getBalance());
-
-                    accountService.findTradingAccountsByPage(systemAccount.getId(), Pageable.unpaged()).getContent()
-                            .forEach(tradingAccount -> {
-                                Assertions.assertEquals(TestDoubles.USER_INITIAL_BALANCE, tradingAccount.getBalance());
-                                initialTradingAccountsTotal = initialTradingAccountsTotal.plus(tradingAccount.getBalance());
-                            });
-
-                });
+        initialSystemAccountsTotal = accountService.getSystemAccountTotalBalance(Money.EUR);
+        initialTradingAccountsTotal = accountService.getTradingAccountTotalBalance(Money.EUR);
 
         logger.info("System accounts initial total: %s".formatted(initialSystemAccountsTotal));
         logger.info("Trading accounts initial total: %s".formatted(initialTradingAccountsTotal));
@@ -176,7 +175,6 @@ public class TradingStressTest extends AbstractIntegrationTest {
                                 .buy(tradingProduct.getReference())
                                 .unitPrice(tradingProduct.getBuyPrice())
                                 .quantity(qty)
-                                .ref(UUID.randomUUID().toString())
                                 .build()
                 );
 
@@ -267,21 +265,21 @@ public class TradingStressTest extends AbstractIntegrationTest {
     public void whenWrapping_thenCompareInitialAndFinalTotalBalance() {
         Assertions.assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
 
-        Money finalSystemAccountsTotal = Money.zero(Money.EUR);
-        Money finalTradingAccountsTotal = Money.zero(Money.EUR);
+        Money finalSystemAccountsTotal = accountService.getSystemAccountTotalBalance(Money.EUR);
+        Money finalTradingAccountsTotal = accountService.getTradingAccountTotalBalance(Money.EUR);
 
-        for (SystemAccount systemAccount : accountService.findSystemAccountsByPage(Pageable.unpaged())
-                .getContent()) {
-            finalSystemAccountsTotal = finalSystemAccountsTotal.plus(systemAccount.getBalance());
+        Money diffSys = initialSystemAccountsTotal.minus(finalSystemAccountsTotal);
+        logger.info(" System accounts initial total: %s".formatted(initialSystemAccountsTotal));
+        logger.info("   System accounts final total: %s".formatted(finalSystemAccountsTotal));
+        logger.info("          System accounts diff: %s".formatted(diffSys));
 
-            for (TradingAccount tradingAccount : accountService.findTradingAccountsByPage(systemAccount.getId(),
-                    Pageable.unpaged()).getContent()) {
-                finalTradingAccountsTotal = finalTradingAccountsTotal.plus(tradingAccount.getBalance());
-            }
-        }
+        Money diffTrade = initialTradingAccountsTotal.minus(finalTradingAccountsTotal);
+        logger.info("Trading accounts initial total: %s".formatted(initialTradingAccountsTotal));
+        logger.info("  Trading accounts final total: %s".formatted(finalTradingAccountsTotal));
+        logger.info("         Trading accounts diff: %s".formatted(diffTrade));
 
-        logger.info("System accounts final total: %s".formatted(finalSystemAccountsTotal));
-        logger.info("Trading accounts final total: %s".formatted(finalTradingAccountsTotal));
+        logger.info("       Checksum (must be zero): %s".formatted(diffSys.plus(diffTrade)));
+        logger.info("                 Total retries: %d".formatted(totalRetries.get()));
 
         Assertions.assertEquals(initialSystemAccountsTotal.plus(finalBuyTotal).minus(finalSellTotal),
                 finalSystemAccountsTotal,

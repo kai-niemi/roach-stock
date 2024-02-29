@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.roach.stock.domain.common.Money;
+
 public abstract class RandomUtils {
     private RandomUtils() {
     }

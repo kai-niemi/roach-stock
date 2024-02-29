@@ -69,7 +69,6 @@ create table booking_order
     order_type     varchar(10),
     placed_at      timestamptz    not null,
     quantity       int4           not null,
-    reference      varchar(255)   not null,
     total_amount   numeric(19, 2) not null,
     total_currency varchar(3)     not null,
     account_id     uuid,
@@ -77,9 +76,6 @@ create table booking_order
 
     primary key (id)
 );
-
-create unique index on booking_order (reference)
-    storing (approved_at, order_type, placed_at, quantity, total_amount, total_currency, account_id, product_id);
 
 create unique index uidx_order_placed_at
     on booking_order (placed_at, id) storing (total_amount);
