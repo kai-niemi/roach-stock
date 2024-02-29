@@ -70,12 +70,12 @@ public class TransactionRetryAspect {
                 numCalls++;
                 Object rv = pjp.proceed();
                 if (numCalls > 1) {
-                    retryConsumer.accept(numCalls - 1);
                     logger.info(
                             "Transient error recovered after %d of %d retries (%s)"
                                     .formatted(numCalls - 1,
                                             retryable.retryAttempts(),
                                             Duration.between(callTime, Instant.now()).toString()));
+                    retryConsumer.accept(numCalls - 1);
                 }
                 return rv;
             } catch (UndeclaredThrowableException ex) {
@@ -93,12 +93,18 @@ public class TransactionRetryAspect {
                             retryable.maxBackoff());
                     continue;
                 }
+                logger.error(
+                        "Non-recoverable exception in retry cycle %d/%d (Code: %s)"
+                                .formatted(numCalls, retryable.retryAttempts(),
+                                        sqlException.getSQLState()),
+                        sqlException);
+            } else {
+                logger.error(
+                        "Non-recoverable exception in retry cycle %d/%d"
+                                .formatted(numCalls, retryable.retryAttempts()),
+                        cause);
             }
-
-            logger.error("Non-recoverable exception in retry loop", throwable);
-
             throw throwable;
-
         } while (numCalls < retryable.retryAttempts());
 
         throw new ConcurrencyFailureException(

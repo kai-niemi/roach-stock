@@ -29,7 +29,7 @@ import io.roach.stock.domain.product.ProductRepository;
 
 @Service
 @TransactionMandatory
-public class OrderServiceImpl implements OrderService {
+public class DefaultOrderService implements OrderService {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -57,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new IllegalStateException("Not supposed to happen"));
         }
 
-        Product product = productRepository.getByReference(request.getProductRef())
+        Product product = productRepository.findByReference(request.getProductRef())
                 .orElseThrow(() -> new NoSuchProductException(request.getProductRef()));
 
         validateOrder(request, product);

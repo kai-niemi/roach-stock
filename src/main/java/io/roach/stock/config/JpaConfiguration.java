@@ -36,7 +36,7 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 @EnableJpaRepositories(basePackageClasses = TradingApplication.class, enableDefaultTransactions = false)
 @EnableJpaAuditing(modifyOnCreate = false, auditorAwareRef = "auditorProvider")
 public class JpaConfiguration {
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Bean
     public AuditorAware<String> auditorProvider() {
@@ -71,6 +71,7 @@ public class JpaConfiguration {
         listener.setQueryLogEntryCreator(creator);
 
         HikariDataSource dataSource = hikariDataSource();
+
         return ProxyDataSourceBuilder
                 .create(new LazyConnectionDataSourceProxy(dataSource))
                 .name("SQL-Trace")
@@ -83,13 +84,9 @@ public class JpaConfiguration {
     @Bean
     @ConfigurationProperties("spring.datasource.hikari")
     public HikariDataSource hikariDataSource() {
-        HikariDataSource ds = dataSourceProperties()
+        return dataSourceProperties()
                 .initializeDataSourceBuilder()
                 .type(HikariDataSource.class)
                 .build();
-        ds.setAutoCommit(false);
-        ds.addDataSourceProperty("reWriteBatchedInserts", "true");
-        ds.addDataSourceProperty("application_name", "Roach Stock");
-        return ds;
     }
 }

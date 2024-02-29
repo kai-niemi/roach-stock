@@ -14,9 +14,7 @@ import io.roach.stock.annotation.TransactionMandatory;
 @Repository
 @TransactionMandatory
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-    Optional<Product> getByReference(String productRef);
-
-    Optional<Product> getByForeignId(UUID foreignId);
+    Optional<Product> findByReference(String productRef);
 
     @Query(value = "from Product p order by random()")
     Page<Product> findAllByRandom(Pageable pageable);

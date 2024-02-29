@@ -46,12 +46,15 @@ spring:
     hikari:
       # inverse of provider_disables_autocommit
       auto-commit: false
-      pool-name: stock-service
-      connection-init-sql: SELECT 1
+      # Be careful with init-sql in PSQL SSI (may cause wierd issues)
+#      connection-init-sql: SELECT 1
       initialization-fail-timeout: -1
-      maximum-pool-size: 40
-      minimum-idle: 20
+      maximum-pool-size: 50
+      minimum-idle: 25
       transaction-isolation: TRANSACTION_SERIALIZABLE
+      data-source-properties:
+        reWriteBatchedInserts: true
+        application_name: "Roach Stock"
 
 #############################
 logging:

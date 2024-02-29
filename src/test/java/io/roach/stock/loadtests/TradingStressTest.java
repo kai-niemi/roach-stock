@@ -46,8 +46,8 @@ import io.roach.stock.util.RandomUtils;
 
 import static io.roach.stock.domain.common.Money.euro;
 
-//@ActiveProfiles(value = {ProfileNames.CRDB_DEV})
-//@ActiveProfiles(value = {ProfileNames.PSQL_LOCAL,ProfileNames.RC})
+//@ActiveProfiles(value = {ProfileNames.CRDB_DEV, ProfileNames.RC})
+//@ActiveProfiles(value = {ProfileNames.PSQL_DEV, ProfileNames.RC})
 //@ActiveProfiles(value = {ProfileNames.PSQL_DEV})
 @Tag("stress")
 public class TradingStressTest extends AbstractIntegrationTest {
@@ -104,8 +104,7 @@ public class TradingStressTest extends AbstractIntegrationTest {
                         "TRADER:" + value, TestDoubles.TRADER_INITIAL_BALANCE);
                 IntStream.rangeClosed(1, NUM_TRADING_ACCOUNTS_PER_SYSTEM_ACCOUNT).forEach(x -> {
                     accountService.createTradingAccount(tradingId, UUID.randomUUID(),
-                            "USER:" + userId.incrementAndGet(), TestDoubles.USER_INITIAL_BALANCE,
-                            false);
+                            "USER:" + userId.incrementAndGet(), TestDoubles.USER_INITIAL_BALANCE);
                 });
             });
 

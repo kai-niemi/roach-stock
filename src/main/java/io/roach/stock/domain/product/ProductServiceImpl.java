@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductByRef(String productRef) {
-        return productRepository.getByReference(productRef)
+        return productRepository.findByReference(productRef)
                 .orElseThrow(() -> new NoSuchProductException(productRef));
     }
 
